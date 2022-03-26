@@ -1,7 +1,5 @@
 import Application from "../models/application"
-// import Order from "../models/order";
 import { Request, Response } from "express"
-import fs from "fs"
 import axios from "axios"
 
 export const create = async (req: Request, res: Response) => {
