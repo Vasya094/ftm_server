@@ -2,10 +2,10 @@ FROM node:16-slim
 
 WORKDIR /usr/src/app
 
-ENV PATH /app/node_modules/.bin:$PATH
-RUN apk add git
-RUN apk add openssh
-RUN apk add bash
+# ENV PATH /app/node_modules/.bin:$PATH
+# RUN apk add git
+# RUN apk add openssh
+# RUN apk add bash
 
 COPY ./package.json ./
 COPY tsconfig.json ./
