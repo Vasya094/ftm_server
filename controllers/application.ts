@@ -1,6 +1,7 @@
 import Application from "../models/application"
 import { Request, Response } from "express"
 import axios from "axios"
+import moment from "moment"
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -30,6 +31,7 @@ export const applications = async (req: Request, res: Response) => {
     "startLocation.place_id"?: string
     "finishLocation.place_id"?: string
   } = {}
+
   const { startLocation, finishLocation, travelDate, type } = req.query
 
   if (startLocation) {
@@ -42,11 +44,24 @@ export const applications = async (req: Request, res: Response) => {
     findObject["type"] = type as string
   }
   console.log(findObject)
-  let all = await Application.find(findObject)
+  const nowTime = moment().toDate()
+  const queryObject = {
+    $or: [
+      { ...findObject, type: "send" },
+      {
+        ...findObject,
+        travelDate: {
+          $gte: nowTime,
+        },
+      },
+    ],
+  }
+  let all = await Application.find(queryObject)
     .limit(15)
     .populate("addedBy", "_id name")
+    .sort({createdAt: -1})
     .lean()
-console.log(req.query)
+  console.log("req.query")
   const allWithLocalCityName = await Promise.all(
     all.map(async (itm) => {
       const startCityInfoLoc = await axios.get(
