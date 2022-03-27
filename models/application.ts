@@ -27,6 +27,7 @@ interface IApplication extends mongoose.Document {
   }
   createdAt: string
   updatedAt: string
+  communicationWays: string
 }
 
 const ApplicationSchema = new Schema(
@@ -86,6 +87,9 @@ const ApplicationSchema = new Schema(
     },
     travelDate: {
       type: Date,
+    },
+    communicationWays: {
+      type: String,
     },
   },
   { timestamps: true }
