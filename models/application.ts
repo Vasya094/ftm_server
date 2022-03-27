@@ -3,21 +3,18 @@ import mongooseDelete from "mongoose-delete"
 import { IUser } from "./user"
 
 const { Schema } = mongoose
+
+interface LocationType {
+  placeId: string
+  namesInLangs: { en: string; ru: string; ar: string }[]
+}
 interface IApplication extends mongoose.Document {
   _id: string
   title: string
   description: string
-  startLocation: {
-    formatted_address: string
-    place_id: string
-    types: string[]
-  }
-  finishLocation: {
-    formatted_address: string
-    place_id: string
-    types: string[]
-  }
-  type: 'send' | 'take'
+  startLocation: LocationType
+  finishLocation: LocationType
+  type: "send" | "take"
   pricePerKg: number
   travelDate: string
   addedBy: IUser["_id"]
@@ -44,35 +41,21 @@ const ApplicationSchema = new Schema(
     type: {
       type: String,
       required: true,
-      default: 'send',
+      default: "send",
     },
     startLocation: {
-      formatted_address: {
-        type: String,
-      },
-      place_id: {
+      placeId: {
         type: String,
         default: false,
       },
-      types: [
-        {
-          type: String,
-        },
-      ],
+      namesInLangs: { en: String, ru: String, ar: String },
     },
     finishLocation: {
-      formatted_address: {
-        type: String,
-      },
-      place_id: {
+      placeId: {
         type: String,
         default: false,
       },
-      types: [
-        {
-          type: String,
-        },
-      ],
+      namesInLangs: { en: String, ru: String, ar: String },
     },
     pricePerKg: {
       type: Number,
@@ -95,6 +78,9 @@ const ApplicationSchema = new Schema(
   { timestamps: true }
 )
 
-ApplicationSchema.plugin(mongooseDelete, {deletedAt: true, overrideMethods: 'all'});
+ApplicationSchema.plugin(mongooseDelete, {
+  deletedAt: true,
+  overrideMethods: "all",
+})
 
 export default mongoose.model<IApplication>("Application", ApplicationSchema)

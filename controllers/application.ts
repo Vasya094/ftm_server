@@ -2,12 +2,29 @@ import Application from "../models/application"
 import { Request, Response } from "express"
 import axios from "axios"
 import moment from "moment"
+import { letTranslatedNamesByPlaceId } from "../utils"
 
 export const create = async (req: Request, res: Response) => {
   try {
     let fields = req.body
 
-    let application = new Application(fields)
+    const newAppToDB = {
+      ...fields,
+      startLocation: {
+        ...fields.startLocation,
+        namesInLangs: await letTranslatedNamesByPlaceId(
+          fields.startLocation.placeId
+        ),
+      },
+      finishLocation: {
+        ...fields.finishLocation,
+        namesInLangs: await letTranslatedNamesByPlaceId(
+          fields.finishLocation.placeId
+        ),
+      },
+    }
+
+    let application = new Application(newAppToDB)
     application.addedBy = req?.user?._id as string
 
     application.save((err, result) => {
@@ -59,36 +76,10 @@ export const applications = async (req: Request, res: Response) => {
   let all = await Application.find(queryObject)
     .limit(15)
     .populate("addedBy", "_id name")
-    .sort({createdAt: -1})
+    .sort({ createdAt: -1 })
     .lean()
-  console.log("req.query")
-  const allWithLocalCityName = await Promise.all(
-    all.map(async (itm) => {
-      const startCityInfoLoc = await axios.get(
-        `https://maps.googleapis.com/maps/api/place/details/json?fields=name&place_id=${itm.startLocation.place_id}&key=AIzaSyAKZsE1FtzbP9zpg8YSQWxe8h1i1Ss8qmE`,
-        {
-          headers: {
-            "Accept-Language": req.query.currentLng as string,
-          },
-        }
-      )
-      const finishCityInfoLoc = await axios.get(
-        `https://maps.googleapis.com/maps/api/place/details/json?fields=name&place_id=${itm.finishLocation.place_id}&key=AIzaSyAKZsE1FtzbP9zpg8YSQWxe8h1i1Ss8qmE`,
-        {
-          headers: {
-            "Accept-Language": req.query.currentLng as string,
-          },
-        }
-      )
-      return {
-        ...itm,
-        startCityInfoLoc: startCityInfoLoc.data.result?.name || "",
-        finishCityInfoLoc: finishCityInfoLoc.data.result?.name || "",
-      }
-    })
-  )
 
-  res.json(allWithLocalCityName)
+  res.json(all)
 }
 
 export const myapplications = async (req: Request, res: Response) => {
@@ -100,14 +91,12 @@ export const myapplications = async (req: Request, res: Response) => {
 }
 
 export const remove = async (req: Request, res: Response) => {
-  let appToDelete = await Application.findById(
-    req.params.applicationId
-  ).exec()
+  let appToDelete = await Application.findById(req.params.applicationId).exec()
   console.log(appToDelete)
   if (appToDelete) {
     await appToDelete.delete()
   }
-  res.json({message: "application_deleted"})
+  res.json({ message: "application_deleted" })
 }
 
 export const read = async (req: Request, res: Response) => {
@@ -137,45 +126,4 @@ export const update = async (req: Request, res: Response) => {
     console.log(err)
     res.status(400).send("application update failed. Try again.")
   }
-}
-
-// export const userApplicationBookings = async (req: Request, res: Response) => {
-//   const all = await Order.find({ orderedBy: req.user._id })
-//     .select("session")
-//     .populate("application", "-image.data")
-//     .populate("addedBy", "_id name")
-//     .exec();
-//   res.json(all);
-// };
-
-// export const isAlreadyBooked = async (req: Request, res: Response) => {
-//   const { applicationId } = req.params;
-//   // find orders of the currently logged in user
-//   const userOrders = await Order.find({ orderedBy: req.user._id })
-//     .select("application")
-//     .exec();
-//   // check if application id is found in userOrders array
-//   let ids = [];
-//   for (let i = 0; i < userOrders.length; i++) {
-//     ids.push(userOrders[i].application.toString());
-//   }
-//   res.json({
-//     ok: ids.includes(applicationId),
-//   });
-// };
-
-export const searchListings = async (req: Request, res: Response) => {
-  const { location, date, bed } = req.body
-  // console.log(location, date, bed);
-  // console.log(date);
-  const fromDate = date.split(",")
-  // console.log(fromDate[0]);
-  let result = await Application.find({
-    from: { $gte: new Date(fromDate[0]) },
-    location,
-  })
-    .select("-image.data")
-    .exec()
-  // console.log("SEARCH LISTINGS", result);
-  res.json(result)
 }

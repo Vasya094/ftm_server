@@ -12,7 +12,6 @@ import {
   remove,
   read,
   update,
-  searchListings,
 } from "../controllers/application";
 
 router.post("/create-application", requireSignin, create);
@@ -26,9 +25,5 @@ router.put(
   applicationOwner,
   update
 );
-// orders
-// router.get("/user-application-bookings", requireSignin, userapplicationBookings);
-// router.get("/is-already-booked/:applicationId", requireSignin, isAlreadyBooked);
-router.post("/search-listings", searchListings);
 
 module.exports = router;
