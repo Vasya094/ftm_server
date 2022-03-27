@@ -85,10 +85,14 @@ export const myapplications = async (req: Request, res: Response) => {
 }
 
 export const remove = async (req: Request, res: Response) => {
-  let removed = await Application.findByIdAndDelete(
+  let appToDelete = await Application.findById(
     req.params.applicationId
   ).exec()
-  res.json(removed)
+  console.log(appToDelete)
+  if (appToDelete) {
+    await appToDelete.delete()
+  }
+  res.json({message: "application_deleted"})
 }
 
 export const read = async (req: Request, res: Response) => {
@@ -160,13 +164,3 @@ export const searchListings = async (req: Request, res: Response) => {
   // console.log("SEARCH LISTINGS", result);
   res.json(result)
 }
-
-/**
- * if you want to be more specific
- let result = await Listing.find({
-  from: { $gte: new Date() },
-  to: { $lte: to },
-  location,
-  bed,
-})
- */

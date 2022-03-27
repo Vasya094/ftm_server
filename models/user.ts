@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs"
 export interface IUser extends Document {
   _id: string
   name: string
-  email: string
+  userName: string
   password: string
   role: string
   access_token: string
@@ -19,7 +19,7 @@ const User: Schema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    email: {
+    userName: {
       type: String,
       unique: true,
       required: true,

@@ -4,15 +4,16 @@ import { Request, Response } from "express"
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body
+    const { name, userName, password } = req.body
     // validation
     if (!name) return res.status(400).send("name_is_required")
     if (!password || password.length < 6)
       return res
         .status(400)
         .send("password_is_required_and_should_be_min_6_characters_long")
-    let userExist = await User.findOne({ email }).exec()
-    if (userExist) return res.status(400).send("email_is_taken")
+    let userExist = await User.findOne({ userName }).exec()
+    console.log(userExist)
+    if (userExist) return res.status(400).json({message:"userName_is_taken"})
     // register
     const user = new User(req.body)
 
@@ -26,12 +27,9 @@ export const register = async (req: Request, res: Response) => {
       user: {
         _id: user._id,
         name: user.name,
-        email: user.email,
+        userName: user.userName,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        // stripe_account_id: user.stripe_account_id,
-        // stripe_seller: user.stripe_seller,
-        // stripeSession: user.stripeSession,
       },
     })
   } catch (err) {
@@ -42,16 +40,11 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    // console.log(req.body);
-    const { email, password } = req.body
-    // check if user with that email exist
-    let user = await User.findOne({ email }).exec()
-    // console.log("USER EXIST", user);
-    if (!user) return res.status(400).send("User with that email not found")
-    // compare password
+    const { userName, password } = req.body
+    let user = await User.findOne({ userName }).exec()
+    if (!user) return res.status(400).send("User with that userName not found")
     const comparePassword = await user.comparePassword(password)
     if (comparePassword) {
-      // GENERATE A TOKEN THEN SEND AS RESPONSE TO CLIENT
       let token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET as string, {
         expiresIn: "7d",
       })
@@ -60,12 +53,9 @@ export const login = async (req: Request, res: Response) => {
         user: {
           _id: user._id,
           name: user.name,
-          email: user.email,
+          userName: user.userName,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
-          // stripe_account_id: user.stripe_account_id,
-          // stripe_seller: user.stripe_seller,
-          // stripeSession: user.stripeSession,
         },
       })
     } else {

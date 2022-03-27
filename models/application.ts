@@ -1,8 +1,8 @@
 import mongoose from "mongoose"
+import mongooseDelete from "mongoose-delete"
 import { IUser } from "./user"
 
 const { Schema } = mongoose
-
 interface IApplication extends mongoose.Document {
   _id: string
   title: string
@@ -90,5 +90,7 @@ const ApplicationSchema = new Schema(
   },
   { timestamps: true }
 )
+
+ApplicationSchema.plugin(mongooseDelete, {deletedAt: true, overrideMethods: 'all'});
 
 export default mongoose.model<IApplication>("Application", ApplicationSchema)
