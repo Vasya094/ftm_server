@@ -26,4 +26,4 @@ router.put(
   update
 );
 
-module.exports = router;
+export default router;

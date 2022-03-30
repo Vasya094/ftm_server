@@ -1,6 +1,8 @@
 import expressJwt from "express-jwt"
 import express from "express"
 import Application from "../models/application"
+import dotenv from 'dotenv'
+dotenv.config()
 
 // req.user
 export const requireSignin = expressJwt({
@@ -9,19 +11,13 @@ export const requireSignin = expressJwt({
   algorithms: ["HS256"],
 })
 
-interface ReqWithUser {
-  user?: {
-    _id: string
-  }
-}
-
 declare global {
-    namespace Express {
-      interface User {
-        _id: string
-      }
+  namespace Express {
+    interface User {
+      _id: string
     }
   }
+}
 
 export const applicationOwner = async (
   req: express.Request,

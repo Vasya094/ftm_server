@@ -61,7 +61,7 @@ User.pre("save", async function (next) {
 User.methods.comparePassword = async function (candidatePassword: string) {
   const user = this as IUser
 
-  return bcrypt.compare(candidatePassword, user.password).catch((e) => false)
+  return bcrypt.compare(candidatePassword, user.password).catch(() => false)
 }
 
 export default mongoose.model<IUser>("User", User, "users")

@@ -1,20 +1,8 @@
-FROM node:16-slim
-
-WORKDIR /usr/src/app
-
-# ENV PATH /app/node_modules/.bin:$PATH
-# RUN apk add git
-# RUN apk add openssh
-# RUN apk add bash
-
-COPY ./package.json ./
-COPY tsconfig.json ./
-
+FROM node:15.4.0
+WORKDIR /nodedir
+COPY package*.json ./ 
 RUN npm install
-
+RUN npm install typescript -g
 COPY . .
-
-EXPOSE 8000
-
-# CMD "/bin/zsh" [ "npm", "start" ]
-CMD ["npm", "run", "dev"]
+RUN tsc -p tsconfig.json
+CMD [ "npm", "run", "start" ]

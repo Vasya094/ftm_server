@@ -1,6 +1,6 @@
 import Application from "../models/application"
 import { Request, Response } from "express"
-import axios from "axios"
+
 import moment from "moment"
 import { letTranslatedNamesByPlaceId } from "../utils"
 
@@ -49,7 +49,7 @@ export const applications = async (req: Request, res: Response) => {
     "finishLocation.place_id"?: string
   } = {}
 
-  const { startLocation, finishLocation, travelDate, type } = req.query
+  const { startLocation, finishLocation, type } = req.query
 
   if (startLocation) {
     findObject["startLocation.place_id"] = startLocation as string
