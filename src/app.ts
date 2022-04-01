@@ -11,12 +11,11 @@ import applicationRoutes from "./routes/application"
 const app = express()
 
 // db connection
-console.log(process.env.DATABASE_URL)
+console.log(process.env)
 
-const db_url = process.env.MONGO_URL
-  // process.env.NODE_ENV === "development"
-  //   ? process.env.DATABASE_URL 
-  //   : process.env.DATABASE_URL_LOCAL
+const db_url = process.env.NODE_ENV === "development"
+    ? process.env.DATABASE_URL_DEV 
+    : process.env.MONGO_URL
 
 console.log(process.env, "process.env")
 
